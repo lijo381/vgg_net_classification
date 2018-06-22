@@ -33,10 +33,10 @@ WEIGHTS_PATH = 'https://github.com/fchollet/deep-learning-models/releases/downlo
 WEIGHTS_PATH_NO_TOP = 'https://github.com/fchollet/deep-learning-models/releases/download/v0.1/vgg16_weights_tf_dim_ordering_tf_kernels_notop.h5'
 
 
-def VGG16(include_top=False, weights=None,
+def VGG16(include_top=True, weights=None,
           input_tensor=None, input_shape=None,
           pooling=None,
-          classes=1000):
+          classes=3):
     """Instantiates the VGG16 architecture.
 
     Optionally loads weights pre-trained
