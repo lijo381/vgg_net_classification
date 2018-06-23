@@ -16,7 +16,7 @@ def preprocessing_and_labelling(severity_folder):
             # img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
             data=cv2.resize(img,(height,width))
-            img=data#np.rollaxis(data, 2, 0) #.reshape((data.shape[0],data.shape[1], 1))
+            img=np.rollaxis(data, 2, 0) #.reshape((data.shape[0],data.shape[1], 1))
             img_modified = img / 255.0
             # print (os.path.join(severity_folder,dirs,f))
             if 'moderate' in dirs:
