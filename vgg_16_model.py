@@ -28,15 +28,36 @@ from keras.applications.imagenet_utils import preprocess_input
 from keras.applications.imagenet_utils import _obtain_input_shape
 from keras.engine.topology import get_source_inputs
 
+import numpy as np
+# import matplotlib.pyplot as plt
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.layers import Dropout
+from keras.layers import Flatten
+from keras.constraints import maxnorm
+from keras.optimizers import SGD
+from keras.layers import Activation
+from keras.layers.convolutional import Conv2D, MaxPooling2D, ZeroPadding2D
+from keras.layers.normalization import BatchNormalization
+from keras.initializers import glorot_normal
+from keras.utils import np_utils
+# from keras_sequential_ascii import sequential_model_to_ascii_printout
+from keras import backend as K
+if K.backend()=='tensorflow':
+    K.set_image_dim_ordering("th")
 
+# Import Tensorflow with multiprocessing
+import tensorflow as tf
+import multiprocessing as mp
 WEIGHTS_PATH = 'https://github.com/fchollet/deep-learning-models/releases/download/v0.1/vgg16_weights_tf_dim_ordering_tf_kernels.h5'
 WEIGHTS_PATH_NO_TOP = 'https://github.com/fchollet/deep-learning-models/releases/download/v0.1/vgg16_weights_tf_dim_ordering_tf_kernels_notop.h5'
 
 
 def VGG16(include_top=True, weights=None,
-          input_tensor=None, input_shape=None,
+          input_tensor=None, input_shape=(3,224,224),
           pooling=None,
           classes=3):
+    print('>>>>>',K.image_data_format())
     """Instantiates the VGG16 architecture.
 
     Optionally loads weights pre-trained
@@ -97,8 +118,8 @@ def VGG16(include_top=True, weights=None,
     # Determine proper input shape
     input_shape = _obtain_input_shape(input_shape,
                                       default_size=224,
-                                      min_size=48,
-                                      data_format=K.image_data_format(),
+                                      min_size=224,
+                                      data_format='channels_last',
                                       require_flatten=include_top)
 
     if input_tensor is None:
@@ -189,7 +210,105 @@ def VGG16(include_top=True, weights=None,
                               'at ~/.keras/keras.json.')
     return model
 
+def base_model(x_train):
+    BATCH_NORM = False
 
+    batch_size = 64
+    num_classes = 3
+    epochs = 25
+    data_augmentation = True
+    model = Sequential()
+
+    model.add(Conv2D(64, (3, 3), padding='same', input_shape=x_train.shape[1:], name='block1_conv1'))
+    model.add(BatchNormalization()) if BATCH_NORM else None
+    model.add(Activation('relu'))
+
+    model.add(Conv2D(64, (3, 3),dim_ordering="tf", padding='same', name='block1_conv2'))
+    model.add(BatchNormalization()) if BATCH_NORM else None
+    model.add(Activation('relu'))
+
+    model.add(MaxPooling2D((2, 2), strides=(2, 2), name='block1_pool'))
+
+    model.add(Conv2D(128, (3, 3), padding='same', name='block2_conv1'))
+    model.add(BatchNormalization()) if BATCH_NORM else None
+    model.add(Activation('relu'))
+
+    model.add(Conv2D(128, (3, 3), padding='same', name='block2_conv2'))
+    model.add(BatchNormalization()) if BATCH_NORM else None
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D((2, 2), strides=(2, 2), name='block2_pool'))
+
+    model.add(Conv2D(256, (3, 3), padding='same', name='block3_conv1'))
+    model.add(BatchNormalization()) if BATCH_NORM else None
+    model.add(Activation('relu'))
+
+    model.add(Conv2D(256, (3, 3), padding='same', name='block3_conv2'))
+    model.add(BatchNormalization()) if BATCH_NORM else None
+    model.add(Activation('relu'))
+
+    model.add(Conv2D(256, (3, 3), padding='same', name='block3_conv3'))
+    model.add(BatchNormalization()) if BATCH_NORM else None
+    model.add(Activation('relu'))
+
+    model.add(Conv2D(256, (3, 3), padding='same', name='block3_conv4'))
+    model.add(BatchNormalization()) if BATCH_NORM else None
+    model.add(Activation('relu'))
+
+    model.add(MaxPooling2D((2, 2), strides=(2, 2), name='block3_pool'))
+
+    model.add(Conv2D(512, (3, 3), padding='same', name='block4_conv1'))
+    model.add(BatchNormalization()) if BATCH_NORM else None
+    model.add(Activation('relu'))
+
+    model.add(Conv2D(512, (3, 3), padding='same', name='block4_conv2'))
+    model.add(BatchNormalization()) if BATCH_NORM else None
+    model.add(Activation('relu'))
+
+    model.add(Conv2D(512, (3, 3), padding='same', name='block4_conv3'))
+    model.add(BatchNormalization()) if BATCH_NORM else None
+    model.add(Activation('relu'))
+
+    model.add(Conv2D(512, (3, 3), padding='same', name='block4_conv4'))
+    model.add(BatchNormalization()) if BATCH_NORM else None
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D((2, 2), strides=(2, 2), name='block4_pool'))
+
+    model.add(Conv2D(512, (3, 3), padding='same', name='block5_conv1'))
+    model.add(BatchNormalization()) if BATCH_NORM else None
+    model.add(Activation('relu'))
+
+    model.add(Conv2D(512, (3, 3), padding='same', name='block5_conv2'))
+    model.add(BatchNormalization()) if BATCH_NORM else None
+    model.add(Activation('relu'))
+
+    model.add(Conv2D(512, (3, 3), padding='same', name='block5_conv3'))
+    model.add(BatchNormalization()) if BATCH_NORM else None
+    model.add(Activation('relu'))
+
+    model.add(Conv2D(512, (3, 3), padding='same', name='block5_conv4'))
+    model.add(BatchNormalization()) if BATCH_NORM else None
+    model.add(Activation('relu'))
+
+    model.add(Flatten())
+
+    model.add(Dense(4096))
+    model.add(BatchNormalization()) if BATCH_NORM else None
+    model.add(Activation('relu'))
+    model.add(Dropout(0.5))
+
+    model.add(Dense(4096, name='fc2'))
+    model.add(BatchNormalization()) if BATCH_NORM else None
+    model.add(Activation('relu'))
+    model.add(Dropout(0.5))
+
+    model.add(Dense(num_classes))
+    model.add(BatchNormalization()) if BATCH_NORM else None
+    model.add(Activation('softmax'))
+
+    sgd = SGD(lr=0.5, decay=0, nesterov=True)
+
+    model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
+    return model
 # if __name__ == '__main__':
 #     model = VGG16(include_top=True, weights='imagenet')
 #
