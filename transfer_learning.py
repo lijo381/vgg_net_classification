@@ -24,4 +24,9 @@ def vgg_model16_pretrained():
 
     # Create your own model
     my_model = Model(input=input, output=x)
+    for layer in my_model.layers[:-1]:
+        layer.trainable = False
+
+    my_model.layers[3].trainable
+    my_model.compile(loss='categorical_crossentropy',optimizer='rmsprop',metrics=['accuracy'])
     return my_model
