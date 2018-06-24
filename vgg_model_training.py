@@ -1,3 +1,5 @@
+from keras.utils import to_categorical
+
 import numpy as np
 from preprocessing import preprocessing_and_labelling
 from vgg_16_model import VGG16,base_model
@@ -13,6 +15,8 @@ severity_folder_val='/home/ubuntu/car-damage-dataset/data3a/validation'
 
 train_x,train_y=preprocessing_and_labelling(severity_folder)
 val_x,val_y=preprocessing_and_labelling(severity_folder_val)
+train_y=to_categorical(train_y)
+val_y=to_categorical(val_y)
 # print (processed_data_val[:][0])
 print(val_x.shape)
 model=vgg_model16_pretrained()

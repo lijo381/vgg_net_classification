@@ -21,9 +21,9 @@ def vgg_model16_pretrained():
     #dropout2 = Dropout(0.85)
     # Add the fully-connected layers
     x = Flatten(name='flatten')(output_vgg16_conv)
-    x = Dense(512, activation='relu', name='fc1')(x)
+    x = Dense(4096, activation='relu', name='fc2')(x)
     #x = dropout1(x)
-    x = Dense(512, activation='relu', name='fc2')(x)
+    x = Dense(4096, activation='relu', name='fc1')(x)
     #x = Dense(1024, activation='relu', name='fc3')(x)
     x = Dense(3, activation='softmax', name='predictions')(x)
 
@@ -33,5 +33,5 @@ def vgg_model16_pretrained():
         layer.trainable = False
     my_model.summary()
     my_model.layers[3].trainable
-    my_model.compile(loss='mse',optimizer=optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True),metrics=['accuracy'])
+    my_model.compile(loss='mse',optimizer=optimizers.SGD(lr=0.001, decay=1e-6, momentum=0.9, nesterov=True),metrics=['accuracy'])
     return my_model

@@ -21,16 +21,16 @@ def preprocessing_and_labelling(severity_folder):
             # print (os.path.join(severity_folder,dirs,f))
             if 'moderate' in dirs:
                 x_train.append(img_modified)
-                y_train.append(np.asarray([0,0,1]))
+                y_train.append(2)
                 # print('moderate')
             elif 'minor' in dirs:
                 # print('minor')
                 x_train.append(img_modified)
-                y_train.append( np.asarray([0,1,0]))
+                y_train.append(1)
             elif 'severe' in dirs:
                 # print('severe')
                 x_train.append(img_modified)
-                y_train.append(np.asarray([1,0,0]))
+                y_train.append(2)
 
     print('Done...')
     return np.asarray(x_train),np.asarray(y_train)
