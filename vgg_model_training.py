@@ -1,4 +1,5 @@
 from keras.utils import to_categorical
+from sklearn.utils import shuffle
 
 import numpy as np
 from preprocessing import preprocessing_and_labelling
@@ -17,8 +18,11 @@ train_x,train_y=preprocessing_and_labelling(severity_folder)
 val_x,val_y=preprocessing_and_labelling(severity_folder_val)
 train_y=to_categorical(train_y)
 val_y=to_categorical(val_y)
+train_x,train_y = shuffle(train_x,train_y, random_state=2)
+val_x,val_y = shuffle(val_x,val_y, random_state=2)
+print(val_y)
 # print (processed_data_val[:][0])
-print(val_x.shape)
+print(train_x.shape)
 model=vgg_model16_pretrained()
 # train_x,train_y=processed_data_train[:][0],processed_data_train[:][1]
 # val_x,val_y=processed_data_val[:][0],processed_data_val[:][1]
@@ -36,16 +40,16 @@ from keras import callbacks
 filename='model_train_new.csv'
 csv_log=callbacks.CSVLogger(filename, separator=',', append=False)
 
-#early_stopping=callbacks.EarlyStopping(monitor='val_loss', min_delta=0, patience=0, verbose=0, mode='min')
+early_stopping=callbacks.EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=0, mode='min')
 
 filepath=model_save_p+"Best-weights-my_model-{epoch:03d}-{loss:.4f}-{acc:.4f}.hdf5"
 
 checkpoint = callbacks.ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
 
-callbacks_list = [csv_log,checkpoint]
+callbacks_list = [csv_log,early_stopping,checkpoint]
 
 #hist = custom_vgg_model.fit(X_train, y_train, batch_size=10, epochs=1, verbose=1, validation_data=(val_data, val_label),callbacks=callbacks_list)
-model.fit(train_x, train_y,
+model.fit(train_x, train_y,shuffle=True,
               epochs=nb_epoch, batch_size=28,verbose=1,
               validation_data=(val_x, val_y),callbacks=callbacks_list)
 
