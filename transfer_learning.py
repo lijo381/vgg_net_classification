@@ -11,7 +11,7 @@ from keras.layers import Dropout
 
 #Get back the convolutional part of a VGG network trained on ImageNet
 def vgg_model16_pretrained():
-    model_vgg16_conv = VGG16(weights='imagenet', include_top=False)
+    model_vgg16_conv = VGG16(weights=None, include_top=False)
     #model_vgg16_conv.summary()
 
     # Create your own input format (here 3x200x200)
