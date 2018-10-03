@@ -7,12 +7,12 @@ from vgg_16_model import VGG16,base_model
 from transfer_learning import vgg_model16_pretrained
 import os
 nb_epoch = 1000
-model_save_p='/home/ubuntu/vgg_net_classification/models_1/'
+model_save_p='/home/user2/car_orientation_detetction/models_1/'
 if not os.path.exists(model_save_p):
     os.mkdir(model_save_p)
 # cwd=os.getcwd()
-severity_folder='/home/ubuntu/car-damage-dataset/data3a/training'
-severity_folder_val='/home/ubuntu/car-damage-dataset/data3a/validation'
+severity_folder='/home/user2/car_orientation_detetction/target_dataset_folder/train'
+severity_folder_val='/home/user2/car_orientation_detetction/target_dataset_folder/validation'
 
 train_x,train_y=preprocessing_and_labelling(severity_folder)
 val_x,val_y=preprocessing_and_labelling(severity_folder_val)
